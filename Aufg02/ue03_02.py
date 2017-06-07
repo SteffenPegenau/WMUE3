@@ -23,28 +23,30 @@ def removeDots(wordlist):
 
         #remove parenthesises in front of words
         if parenthesis.match(word) != None:
-            print('Parenthesis found: ' + word + ' at position ' + str(i))
+##            print('Parenthesis found: ' + word + ' at position ' + str(i))
             word = word[1:]
-            print('Removed: ' + wordlist.pop(i))
+            removedWord = wordlist.pop(i)
+##            print('Removed: ' + removedWord)
             wordlist.insert(i, word)
-            print('Replaced with ' + word)
+##            print('Replaced with ' + word)
             changedWord = True                  # decrease i to double check words
 
         #remove dots, colons and parenthesises at the end
         if dotsAndColons.match(word) != None:
-           print('Dot or colon found: ' + word + ' at position ' + str(i))
+##           print('Dot or colon found: ' + word + ' at position ' + str(i))
            word = word[:-1]
-           print('Removed: ' + wordlist.pop(i))
+           removedWord = wordlist.pop(i)
+##           print('Removed: ' + removedWord)
            wordlist.insert(i, word)
-           print('Replaced with ' + word )
+##           print('Replaced with ' + word )
            changedWord = True                   # decrease i to double check words (e.g. 'end).' )
 
 
         #remove URLs and email addresses from wordlist
         if email.match(word) != None or urls.match(word) != None:
-            print('Email/URL found: ' + word + ' at position ' + str(i))
+##            print('Email/URL found: ' + word + ' at position ' + str(i))
             wordlist.pop(i)
-            print('Removed!')
+##            print('Removed!')
             i -= 1                  # decrease i, as wordlist has just become shorter
 
 
@@ -144,11 +146,15 @@ def getMaxTermFrequency(wordDict):
 
     return maxtf
 
+
+
+
 def normTF(wordDict):
     """Receives a dictionary with (word: frequency) pairs and replaces the frequency value
         with the normalized term frequency value"""
     maxtf = getMaxTermFrequency(wordDict)
 
+    
     for word in wordDict:
         wordDict.update({word: wordDict.get(word)/maxtf})
 
@@ -203,69 +209,82 @@ import math
 #import file testdata.html for simplicity
 #switch to data collection lateron
 
-filelist = glob.glob('testdata/*.html')
+filelist = glob.glob('trainingdata/fulltext*.html')
 
 #counts, in how many documents a word appears with (word: absolute frequency) pairs
 totalWordAppearenceDict = {}
 #a list that contains for every document the dictionary with normalized term frequencies
 dictList = []
 
+#list that contains the class for every document, either course or non-course
+classList = []
+
 #list that contains the most n words appearing in training set
-n = 10
+n = 20
 mostNWords = []
 
 for file in filelist:
 
-    data = open(file, 'r', encoding='utf-8')
-    soup = BeautifulSoup(data, 'html.parser')
-    wordlist = soup.get_text().lower().split()
-
-    #wordlist = ['(((aaa:', 'https://google', 'aa:a?!', '"zzz,?!""', 'abc@xyz.de.', 'bbb)...', 'http://google.com', 'https://www.google.com/', '[ccc.)', 'ddd.', 'eee])', 'fff.', '(xyz@abc.com', 'ggg:']
-
-    #wordlist without dots, colons, parentheses, URLs, email addresses etc.
-    wordlist = removeDots(wordlist)
-
-    #wordlist without stopwords and stemmed
-    wordlist = kickStopwords(wordlist)
-    wordlist = stemWords(wordlist)
-
-    #dictionary with (word: absolute frequency) pairs
-    wordDict = termFrequency(wordlist)
-
-    #append copy of dict with (word: abs. frequency) to mostNWords for later selection of the most n words
-    mostNWords.append(wordDict.copy())
-
-
-    #add words and number of documents they appear in to totalWordDict
-    for word in wordDict:
-        if totalWordAppearenceDict.get(word) == None:
-            #word not in dictionary yet
-            totalWordAppearenceDict.setdefault(word, 1)
-        else:
-            #word already in dictionary. Update value
-            totalWordAppearenceDict.update({word: totalWordAppearenceDict.get(word) + 1})
+    try:
     
+        data = open(file, 'r', encoding='utf-8')
+        soup = BeautifulSoup(data, 'html.parser')
+        wordlist = soup.get_text().lower().split()
 
-    #dictionary with (word: normalized term frequency) pairs
-    wordDict = normTF(wordDict)
+        #course or non-course
+        svmClass = file.split('-----')[1]
+        classList.append(svmClass)
 
-    #list that contains the normalized dictionary for every file of the testdata
-    dictList.append(wordDict)
+        #wordlist = ['(((aaa:', 'https://google', 'aa:a?!', '"zzz,?!""', 'abc@xyz.de.', 'bbb)...', 'http://google.com', 'https://www.google.com/', '[ccc.)', 'ddd.', 'eee])', 'fff.', '(xyz@abc.com', 'ggg:']
+
+        #wordlist without dots, colons, parentheses, URLs, email addresses etc.
+        wordlist = removeDots(wordlist)
+
+        #wordlist without stopwords and stemmed
+        wordlist = kickStopwords(wordlist)
+        wordlist = stemWords(wordlist)
+
+        #dictionary with (word: absolute frequency) pairs
+        wordDict = termFrequency(wordlist)
+
+        #append copy of dict with (word: abs. frequency) to mostNWords for later selection of the most n words
+        mostNWords.append(wordDict.copy())
 
 
-mostNWords = getMostNWords(mostNWords, n)
-print('++++++++++++++++++++++++++++++++++++++++++++')
-print('The most appearing ' + str(n) + ' words:')
-print(mostNWords)
-print('++++++++++++++++++++++++++++++++++++++++++++')
+        #add words and number of documents they appear in to totalWordDict
+        for word in wordDict:
+            if totalWordAppearenceDict.get(word) == None:
+                #word not in dictionary yet
+                totalWordAppearenceDict.setdefault(word, 1)
+            else:
+                #word already in dictionary. Update value
+                totalWordAppearenceDict.update({word: totalWordAppearenceDict.get(word) + 1})
+        
 
-print('totalWordAppearenceDict:')
-print(totalWordAppearenceDict)
+        #dictionary with (word: normalized term frequency) pairs
+        #wordDict = normTF(wordDict)
 
-print('----------------------------------------------------------')
-invDocFreqDict = invDocFreq(totalWordAppearenceDict, len(filelist))
-print('INVERSE DOCUMENT FREQUENCY:')
-print(invDocFreqDict)
+        #dictionary with (word: relative frequency) pairs
+        for word in wordDict:
+            wordDict.update({word: wordDict.get(word)/len(wordlist)})
+
+        #list that contains the normalized dictionary for every file of the testdata
+        dictList.append(wordDict)
+
+    except: 
+        print('Failed to open file ' + file)
+        #filelist.remove(file)
+
+
+
+
+##print('totalWordAppearenceDict:')
+##print(totalWordAppearenceDict)
+
+##print('----------------------------------------------------------')
+invDocFreqDict = invDocFreq(totalWordAppearenceDict.copy(), len(filelist))
+##print('INVERSE DOCUMENT FREQUENCY:')
+##print(invDocFreqDict)
 
 #contains the TF-IDF-Vector for every document
 tfIdfList = []
@@ -280,9 +299,57 @@ for dictionary in dictList:
     tfIdfList.append(vector)
 
 
+
+
 print('++++++++++++++++++++++++++++++++++++++++++++++++++++++')
 print('TF-IDF-LIST:')
-print(tfIdfList)
-        
-        
+print(tfIdfList[:2])
 
+mostNWords = getMostNWords(mostNWords, n)
+print('++++++++++++++++++++++++++++++++++++++++++++')
+print('The ' + str(n) + ' most appearing words:')
+print(mostNWords)
+print(len(mostNWords))
+print('++++++++++++++++++++++++++++++++++++++++++++')
+print(len(totalWordAppearenceDict))
+#print(totalWordAppearenceDict)
+
+
+file = open('data.txt', 'w')
+
+print('length of filelist: ' + str(len(filelist)))
+print('length of classList: ' + str(len(classList)))
+print('length of tfidfList: ' + str(len(tfIdfList)))
+
+endreached = False
+i = 0
+while endreached != True:
+    tfIdf = tfIdfList[i]
+    svmClass = classList[i]
+    line = ''
+
+    if svmClass == 'course':
+        line = '+1 '
+    else:
+        line = '-1 '
+
+    j = 1
+    for word in mostNWords:
+
+        if tfIdf.get(word[0]) != None:
+            line = line + str(j) + ':' + str(tfIdf.get(word[0])) + ' '
+        j += 1
+        
+    
+    print(line)
+    file.write(line + '\n')
+
+    i += 1
+    if i == len(tfIdfList):
+        endreached = True
+
+    
+
+        
+#Wait for user input to stop program
+input("Press <ENTER> to continue")
