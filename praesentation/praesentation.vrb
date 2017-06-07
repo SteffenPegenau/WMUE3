@@ -1,0 +1,18 @@
+\frametitle{Aufgabe 2: Entwicklung eines Crawlers\\Erkennung wiederkehrender Links}
+	\begin{itemize}
+	 \item Entfernung aller Listen:
+\begin{lstlisting}
+<ul>
+  <li><a href="start.html">Start</a></li>
+  <li><a href="news.html">News</a></li>
+  <li><a href="impressum.html">Impressum</a></li>
+</ul>
+\end{lstlisting}
+\item Entfernung mit CSS-Selektor: \texttt{[class*='nav']}:
+\begin{lstlisting}
+<div class="main-navigation">
+  ...
+</div>
+\end{lstlisting}
+\item Speichern der HTML-Dateien als \texttt{HASH(Kanonisierte URL).html}
+\end{itemize}
