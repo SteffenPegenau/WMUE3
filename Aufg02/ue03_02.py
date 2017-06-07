@@ -1,53 +1,288 @@
+###################################################################
+# FUNCTIONS
+
+def removeDots(wordlist):
+    """Receives a list of words. Removes dots, colons, parentheses, URLs and email addresses
+        from that list and returns it."""
+
+    #endlist = wordlist.copy()
+    i = 0
+    email = re.compile('.+@.+\..+')     #pattern of an email address
+    dotsAndColons = re.compile('.*[,!?.;:\])}"\']\B') #any word with dots, colons,", ' or parenthesises at the end
+    parenthesis = re.compile('[\[({"\'].*')    #any words with parenthesises or " ' in front
+    urls = re.compile('http[s]?://.+')        #any http:// and https:// URLs
+
+    endreached = False
+
+    while endreached != True:
+
+        word = wordlist[i]
+        changedWord = False
+
+
+
+        #remove parenthesises in front of words
+        if parenthesis.match(word) != None:
+            print('Parenthesis found: ' + word + ' at position ' + str(i))
+            word = word[1:]
+            print('Removed: ' + wordlist.pop(i))
+            wordlist.insert(i, word)
+            print('Replaced with ' + word)
+            changedWord = True                  # decrease i to double check words
+
+        #remove dots, colons and parenthesises at the end
+        if dotsAndColons.match(word) != None:
+           print('Dot or colon found: ' + word + ' at position ' + str(i))
+           word = word[:-1]
+           print('Removed: ' + wordlist.pop(i))
+           wordlist.insert(i, word)
+           print('Replaced with ' + word )
+           changedWord = True                   # decrease i to double check words (e.g. 'end).' )
+
+
+        #remove URLs and email addresses from wordlist
+        if email.match(word) != None or urls.match(word) != None:
+            print('Email/URL found: ' + word + ' at position ' + str(i))
+            wordlist.pop(i)
+            print('Removed!')
+            i -= 1                  # decrease i, as wordlist has just become shorter
+
+
+        #if a word was changed, decrease i to double check it for another unwanted character
+        if changedWord:
+            i -= 1
+
+        i += 1
+
+        #step out of loop if end is reached
+        if i == len(wordlist) :
+            endreached = True
+
+    return wordlist
+
+
+#---------------------------------------------------------
+# KICK STOPWORDS
+
+def kickStopwords(wordlist):
+    """receives a list of words and removes all stopwords that appear in an internal list.
+        Returns that cleaned up list."""
+    stopwords = open('stopwords_eng.txt').read().lower().split()
+
+    i = 0
+    endreached = False
+
+    while endreached != True:
+        word = wordlist[i]
+
+        for stopword in stopwords:
+            if word == stopword:
+                #delete it
+##                print('Remove ' + wordlist[i])
+                wordlist.pop(i)
+                i -= 1
+
+        i += 1
+        if i == len(wordlist) :
+            endreached = True
+
+    return wordlist
+
+
+#---------------------------------------------------------
+# STEMMING
+import porterstemmer
+import nltk.stem.lancaster
+
+def stemWords(wordlist):
+    """ receives a list of words and returns the list with stemmed words"""
+
+    #using Porter Stemmer for a start
+    # lancStemmer = nltk.stem.lancaster.LancasterStemmer()
+    porterStemmer = porterstemmer.PorterStemmer()
+
+    i = 0
+    endreached = False
+
+    while endreached != True:
+        #stem word at position i
+        wordlist[i] = porterStemmer.stem(wordlist[i], 0, len(wordlist[i]) - 1)
+
+        i += 1
+        if i == len(wordlist) :
+            endreached = True
+
+    return wordlist
+
+
+#---------------------------------------------------------
+# GENERATING TF-IDF-VECTOR
+
+# Counting term frequency
+def termFrequency(wordlist):
+    """Receives a list of words and return a dictionary with (word: frequency) pairs"""
+    wordDict = {}
+
+    for word in wordlist:
+        if wordDict.get(word) == None:
+            #word not in dictionary yet, insert
+            wordDict.setdefault(word, 1)
+        else:
+            #word in dictionary, update value
+            wordDict.update({word: wordDict.get(word) + 1})
+
+    return wordDict
+
+#get maximum term frequency
+def getMaxTermFrequency(wordDict):
+    """Receives a dict with (word: frequency) pairs and return the highest frequency value"""
+    maxtf = 0
+    for word in wordDict:
+        tf = wordDict.get(word, -1)
+        if tf > maxtf:
+            maxtf = tf
+
+    return maxtf
+
+def normTF(wordDict):
+    """Receives a dictionary with (word: frequency) pairs and replaces the frequency value
+        with the normalized term frequency value"""
+    maxtf = getMaxTermFrequency(wordDict)
+
+    for word in wordDict:
+        wordDict.update({word: wordDict.get(word)/maxtf})
+
+    return wordDict
+
+
+def invDocFreq(wordDict, totalDocuments):
+    """Receives a dictionary with amounts of documents that a word appears in and
+        the number of total documents. Replaces the value with the the inverse
+        document frequency (log2(totalDocuments/amount) ) and returns the dictionary."""
+
+    for word in wordDict:
+        wordDict.update({word: math.log(totalDocuments/wordDict.get(word), 2)})
+
+    return wordDict
+
+
+def getMostNWords(dictList, n):
+    """Receives a list of dictionaries with (word: absolute frequency) pairs and adds up the
+        frequencies for every word. Then returns a dict with (word: total frequency) pairs
+        for the most n words."""
+
+    temp = {}
+
+    for wordDict in dictList:
+        for word in wordDict:
+            if temp.get(word) == None:
+                #word not in temp dictionary yet
+                temp.setdefault(word, wordDict.get(word))
+            else:
+                #word already in temp dictionary. Update value
+                temp.update({word: temp.get(word) + wordDict.get(word)})
+
+    # create a sorted list from elements in dictionary
+    result = sorted(temp.items(), key=lambda x: x[1], reverse=True)
+
+
+    #return only most n ones
+    return result[:n]
+        
+
+
+
+###################################################################
+# MAIN BODY
+
 from bs4 import BeautifulSoup
 import re
+import glob
+import math
 
 #import file testdata.html for simplicity
 #switch to data collection lateron
-data = open('testdata.html', 'r', encoding='utf-8')
-soup = BeautifulSoup(data, 'html.parser')
-wordlist = soup.get_text().lower().split()
 
-print(wordlist)
-print(len(wordlist))
-print('---------------------------------------------------')
+filelist = glob.glob('testdata/*.html')
 
-#endlist = wordlist.copy()
-i = 0
-email = re.compile('.+@.+\..+')     #pattern of an email address
-dotsAndColons = re.compile('[a-z-]+[\.:]') #any word with dots, colons or parenthesises at the end
+#counts, in how many documents a word appears with (word: absolute frequency) pairs
+totalWordAppearenceDict = {}
+#a list that contains for every document the dictionary with normalized term frequencies
+dictList = []
 
-# TODO: parenthesises
+#list that contains the most n words appearing in training set
+n = 10
+mostNWords = []
 
-for word in wordlist:
+for file in filelist:
 
-    #remove dots and colons
-    if dotsAndColons.match(word) != None:
-       print('Dot or colon found: ' + word + ' at position ' + str(i))
-       word = word[:-1]
-       print('popped: ' + wordlist.pop(i))
-       wordlist.insert(i, word)
-       print('Changed to: ' + word + ' between ' + wordlist[i-1] + ' and ' + wordlist[i+1])
+    data = open(file, 'r', encoding='utf-8')
+    soup = BeautifulSoup(data, 'html.parser')
+    wordlist = soup.get_text().lower().split()
+
+    #wordlist = ['(((aaa:', 'https://google', 'aa:a?!', '"zzz,?!""', 'abc@xyz.de.', 'bbb)...', 'http://google.com', 'https://www.google.com/', '[ccc.)', 'ddd.', 'eee])', 'fff.', '(xyz@abc.com', 'ggg:']
+
+    #wordlist without dots, colons, parentheses, URLs, email addresses etc.
+    wordlist = removeDots(wordlist)
+
+    #wordlist without stopwords and stemmed
+    wordlist = kickStopwords(wordlist)
+    wordlist = stemWords(wordlist)
+
+    #dictionary with (word: absolute frequency) pairs
+    wordDict = termFrequency(wordlist)
+
+    #append copy of dict with (word: abs. frequency) to mostNWords for later selection of the most n words
+    mostNWords.append(wordDict.copy())
 
 
-    #remove email addresses from wordlist
-    if email.match(word) != None:
-        print('Email found: ' + word + ' at position ' + str(i))
-        wordlist.pop(i)
-        print('Removed!')
-                
-
+    #add words and number of documents they appear in to totalWordDict
+    for word in wordDict:
+        if totalWordAppearenceDict.get(word) == None:
+            #word not in dictionary yet
+            totalWordAppearenceDict.setdefault(word, 1)
+        else:
+            #word already in dictionary. Update value
+            totalWordAppearenceDict.update({word: totalWordAppearenceDict.get(word) + 1})
     
-    
-    i += 1
 
-print('---------------------------------------------------')
-print(wordlist)
-print(len(wordlist))
-    
+    #dictionary with (word: normalized term frequency) pairs
+    wordDict = normTF(wordDict)
 
-    
-##    charlist = list(word)
-##    for 
+    #list that contains the normalized dictionary for every file of the testdata
+    dictList.append(wordDict)
 
-##for char in charlist:
-##    if char = 
+
+mostNWords = getMostNWords(mostNWords, n)
+print('++++++++++++++++++++++++++++++++++++++++++++')
+print('The most appearing ' + str(n) + ' words:')
+print(mostNWords)
+print('++++++++++++++++++++++++++++++++++++++++++++')
+
+print('totalWordAppearenceDict:')
+print(totalWordAppearenceDict)
+
+print('----------------------------------------------------------')
+invDocFreqDict = invDocFreq(totalWordAppearenceDict, len(filelist))
+print('INVERSE DOCUMENT FREQUENCY:')
+print(invDocFreqDict)
+
+#contains the TF-IDF-Vector for every document
+tfIdfList = []
+for dictionary in dictList:
+    vector = {}
+    for word in dictionary:
+        tf = dictionary.get(word)
+        idf = invDocFreqDict.get(word)
+        weight = tf * idf
+        vector.update({word: weight})
+
+    tfIdfList.append(vector)
+
+
+print('++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+print('TF-IDF-LIST:')
+print(tfIdfList)
+        
+        
+
