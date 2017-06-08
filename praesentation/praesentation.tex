@@ -118,7 +118,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title%[Klima \& Geographie] % (optional, only for long titles)
-{Web Mining: Übung 2}
+{Web Mining: Übung 3}
 \subtitle{Lösungsvorschlag}
 
 \author[Ingo Adrian und Steffen Pegenau]{}
@@ -136,24 +136,61 @@
   \begin{frame}
   \frametitle{Aufgabe 1:\\ Einteilung der Testdaten}
   \begin{itemize}
-    \item Verwendeter Testdatensatz: Vier Universitäten\\
-    \url{www.cs.cmu.edu/afs/cs.cmu.edu/project/theo-20/www/data/}
+    \item Verwendeter Testdatensatz: Co-training Experiments for COLT 98\\
+    \url{http://www.cs.cmu.edu/afs/cs.cmu.edu/project/theo-51/www/co-training/data/}
     \item Testdaten sind in Unterordnern sortiert:\\
-    	  Kategorie/Ort\_der\_Erhebung/VolleURL
-   	\item Beispiel:\\ \includegraphics[width=0.8\textwidth]{img/Ordnerstruktur} 
-   	\item Zur einfacheren Verarbeitung soll die Ordnerhierarchie entfallen und
+    	  Art/Kategorie/VolleURL
+   \item Art kann "`fulltext"' oder "`inlinks"'
+   \item "`fulltext"': HTML-Dateien
+   \item "`inlinks"': Link-Text(e), die auf die Seiten verwiesen haben. \\
+	Beispiel: \texttt{<a href=VolleURL>Link-Text</a>}
+   \item Zur einfacheren Verarbeitung soll die Ordnerhierarchie entfallen und
    	die Informationen in den Dateinamen übernommen werden.
   \end{itemize}
   \end{frame}
   
   \begin{frame}
-  \frametitle{Aufgabe 1:\\ Bash-Skript zur Neusortierung}
+  \frametitle{Aufgabe 1:\\ BASH: Neusortierung/Entfernung der Hierarchie \\ Teil 1: Die dunklen Zeichen }
   \begin{itemize}
+    \item Mit einem Bash-Skript soll die Hierarchie flach gezogen werden
     \item Das Namensschema der Dateien soll lauten:\\
-    $\text{TRAIN|TEST}\underbrace{\#\#\#\#\#}_{\text{Trenner}}\text{Kategorie}\underbrace{\#\#\#\#\#}_{\text{Trenner}}\text{VolleURL}$
+    $\text{fulltext|inlinks}\underbrace{-----}_{\text{Trenner}}\text{Kategorie}\underbrace{-----}_{\text{Trenner}}\text{VolleURL}$
+    \item Die URL soll dabei außerdem angepasst werden:
+	\begin{itemize}
+		\item Doppelpunkte werden entfernt, weil sich Windows daran stört
+		\item \texttt{http://www.} wird ersetzt, um die URLs zu verkürzen. Windows stört sich auch an langen Dateipfaden
+	\end{itemize}
+    \item Am Ende sehen die Dateinamen so aus: \\
+    $\underbrace{fulltext}_{Art}--\underbrace{course}_{Kategorie}--\underbrace{BEG}_{http...}--\text{cs.washington.edu\^{}education\^{}courses\^{}431\^{}}$
+    \item Vorteil des Ersetzens gegenüber dem Wegwerfen einzelner Zeichen/Abschnitte: Es gehen keine Informationen verloren. Bei Bedarf kann der gesamte Link wiederhergestellt werden.
   \end{itemize}
   \end{frame}
  
+	\begin{frame}
+		\frametitle{Aufgabe 1: \\ BASH: Neusortierung/Entfernung der Hierarchie \\ Teil 2: Angriff der Kategorisierung}
+		\begin{itemize}
+			\item Die Daten müssen nun noch in Test- und Trainingsdaten eingeteilt werden
+			\item Das Skript wirft für jede Datei die Münze und dokumentiert das Ergebnis ebenfalls im Dateinamen
+			\item Beispiel: \\
+			\texttt{test----fulltext----course----BEG----cs.wisc.edu\^{}\~{}dyer\^{}cs766.html}
+			\item Das Ergebnis der Verteilung scheint zufällig und damit brauchbar: \\
+			\begin{tabular}{|l|r|r||r|}
+				\hline
+& Training	& Test	& 	Summe \\
+\hline
+course	& 	233	& 	227	& 	460	\\
+non-course	& 	802	& 	840	& 	1642	\\
+\hline
+\hline
+Summe	& 	1035	& 	1067	& 2102\\
+				\hline
+			\end{tabular}
+
+
+		\end{itemize}
+
+	\end{frame}
+
 
 % etc
 \end{document}
