@@ -49,6 +49,10 @@ def removeDots(wordlist):
 ##            print('Removed!')
             i -= 1                  # decrease i, as wordlist has just become shorter
 
+        #remove empty words
+        if word == '':
+            wordlist.pop(i)
+
 
         #if a word was changed, decrease i to double check it for another unwanted character
         if changedWord:
@@ -164,10 +168,10 @@ def normTF(wordDict):
 def invDocFreq(wordDict, totalDocuments):
     """Receives a dictionary with amounts of documents that a word appears in and
         the number of total documents. Replaces the value with the the inverse
-        document frequency (log2(totalDocuments/amount) ) and returns the dictionary."""
+        document frequency (log(totalDocuments/amount) ) and returns the dictionary."""
 
     for word in wordDict:
-        wordDict.update({word: math.log(totalDocuments/wordDict.get(word), 2)})
+        wordDict.update({word: math.log10(totalDocuments/wordDict.get(word))})
 
     return wordDict
 
@@ -194,7 +198,15 @@ def getMostNWords(dictList, n):
 
     #return only most n ones
     return result[:n]
-        
+
+def getMostNDocFreqWords(wordDict, n):
+    """Receives a dictionary with amount of documents a word appears in and a number n.
+        Transforms the dict in a list with descending order and returns the first n elements."""
+
+    # create a sorted list from elements in dictionary
+    result = sorted(wordDict.items(), key=lambda x: x[1], reverse=True)
+
+    return result[:n]
 
 
 
@@ -209,7 +221,11 @@ import math
 #import file testdata.html for simplicity
 #switch to data collection lateron
 
-filelist = glob.glob('trainingdata/fulltext*.html')
+#sample file for presentation:
+#filelist = glob.glob('testdata2/*.html')
+
+#regular training data set from Aufg01
+filelist = glob.glob('../Aufg01/trainingData/train--fulltext*.html')
 
 #counts, in how many documents a word appears with (word: absolute frequency) pairs
 totalWordAppearenceDict = {}
@@ -220,19 +236,27 @@ dictList = []
 classList = []
 
 #list that contains the most n words appearing in training set
-n = 20
+n = 400
 mostNWords = []
+
+#to store index of sample file in presentation
+index = -1
 
 for file in filelist:
 
     try:
+         
+        #catch index of sample file for presentation
+        if file == '../Aufg01/trainingData\\train--fulltext--course--BEG--cs.washington.edu^education^courses^590D^autumn95.html':
+            index = filelist.index(file)
+
     
         data = open(file, 'r', encoding='utf-8')
         soup = BeautifulSoup(data, 'html.parser')
         wordlist = soup.get_text().lower().split()
 
         #course or non-course
-        svmClass = file.split('-----')[1]
+        svmClass = file.split('--')[2]
         classList.append(svmClass)
 
         #wordlist = ['(((aaa:', 'https://google', 'aa:a?!', '"zzz,?!""', 'abc@xyz.de.', 'bbb)...', 'http://google.com', 'https://www.google.com/', '[ccc.)', 'ddd.', 'eee])', 'fff.', '(xyz@abc.com', 'ggg:']
@@ -240,9 +264,15 @@ for file in filelist:
         #wordlist without dots, colons, parentheses, URLs, email addresses etc.
         wordlist = removeDots(wordlist)
 
+ 
         #wordlist without stopwords and stemmed
         wordlist = kickStopwords(wordlist)
+##        print('Length without stopwords: ' + str(len(wordlist)))
+##        print('Unstemmed words: ')
+##        print(wordlist)
         wordlist = stemWords(wordlist)
+##        print('Stemmed words: ')
+##        print(wordlist)
 
         #dictionary with (word: absolute frequency) pairs
         wordDict = termFrequency(wordlist)
@@ -262,11 +292,7 @@ for file in filelist:
         
 
         #dictionary with (word: normalized term frequency) pairs
-        #wordDict = normTF(wordDict)
-
-        #dictionary with (word: relative frequency) pairs
-        for word in wordDict:
-            wordDict.update({word: wordDict.get(word)/len(wordlist)})
+        wordDict = normTF(wordDict)
 
         #list that contains the normalized dictionary for every file of the testdata
         dictList.append(wordDict)
@@ -280,6 +306,7 @@ for file in filelist:
 
 ##print('totalWordAppearenceDict:')
 ##print(totalWordAppearenceDict)
+
 
 ##print('----------------------------------------------------------')
 invDocFreqDict = invDocFreq(totalWordAppearenceDict.copy(), len(filelist))
@@ -298,20 +325,22 @@ for dictionary in dictList:
 
     tfIdfList.append(vector)
 
+#print tfIdfVector of presentation sample file
+#print(tfIdfList[index])
 
 
+##print('++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+##print('TF-IDF-LIST:')
+##print(tfIdfList[:2])
 
-print('++++++++++++++++++++++++++++++++++++++++++++++++++++++')
-print('TF-IDF-LIST:')
-print(tfIdfList[:2])
-
-mostNWords = getMostNWords(mostNWords, n)
+#mostNWords = getMostNWords(mostNWords, n)
+mostNWords = getMostNDocFreqWords(totalWordAppearenceDict.copy(), n)
 print('++++++++++++++++++++++++++++++++++++++++++++')
-print('The ' + str(n) + ' most appearing words:')
+print('The ' + str(n) + ' in most documents appearing words:')
 print(mostNWords)
 print(len(mostNWords))
 print('++++++++++++++++++++++++++++++++++++++++++++')
-print(len(totalWordAppearenceDict))
+#print(len(totalWordAppearenceDict))
 #print(totalWordAppearenceDict)
 
 
@@ -340,9 +369,11 @@ while endreached != True:
         if tfIdf.get(word[0]) != None:
             line = line + str(j) + ':' + str(tfIdf.get(word[0])) + ' '
         j += 1
+
+    #output of sample file for presentation
+##    if i == index:
+##        print(line)
         
-    
-    print(line)
     file.write(line + '\n')
 
     i += 1
