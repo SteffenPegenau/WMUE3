@@ -335,7 +335,8 @@ while endreached != True:
 
     j = 1
     for word in mostNWords:
-
+        #if tf-idf-Vector contains one of the mostNWords, get tf-idf-Value
+        #and append to string
         if tfIdf.get(word[0]) != None:
             line = line + str(j) + ':' + str(tfIdf.get(word[0])) + ' '
         j += 1
@@ -345,10 +346,12 @@ while endreached != True:
     file.write(line + '\n')
 
     i += 1
+
+    #go through loop for every TF-IDF-Vector in list
     if i == len(tfIdfList):
         endreached = True
 
-    
+file.close()
 
         
 #Wait for user input to stop program
