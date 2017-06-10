@@ -1,20 +1,64 @@
 #!/usr/bin/python
 
 import preparationSVM
+from svmutil import *
+import time
+import sys
 
+# Settings
+filename = 'data.txt'
+params = '-t 0 -c 50 -b 1'
+
+
+
+# Helper functions
+def file_len(fname):
+    with open(fname) as f:
+        for i, l in enumerate(f):
+            pass
+        return i + 1
+
+# derived settings
+lines = file_len(filename)
+border = int(lines/2)
+
+# Timer to measure the time of training and testing
+if sys.platform == "win32":
+    # On Windows, the best timer is time.clock()
+    default_timer = time.clock
+else:
+        # On most other platforms the best timer is time.time()
+    default_timer = time.time
 
 def getAccuracy(n):
     preparationSVM.doIt(n)
-    # Settings
-    filename = 'data.txt'
-    params = '-t 0 -c 50 -b 1'
-    def file_len(fname):
-        with open(fname) as f:
-            for i, l in enumerate(f):
-                pass
-        return i + 1
 
-    lines = file_len(filename)
-    border = int(lines/2)
+    y, x = svm_read_problem(filename)
 
-getAccuracy(5)
+    # TRAIN
+    t0 = default_timer()
+    m = svm_train(y[:border], x[:border], params)
+    timeTraing = default_timer() - t0
+
+    # TEST
+    t0 = default_timer()
+    p_label, p_acc, p_val = svm_predict(y[border:], x[border:], m)
+    timeTesting= default_timer() - t0
+
+    #print('Training time: ' + str(timeTraing) + 's')
+    #print('Testing time: ' + str(timeTesting) + 's')
+    return p_acc, timeTraing, timeTesting
+
+csv = "features;accuracy;timeTraining;timeTesting\n"
+file = open('3.3result.csv', 'w')
+file.write(csv)
+file.close
+
+for i in range(1,10000):
+    print('######### Iteration ' + str(i))
+    acc, timeTraining, timeTesting = getAccuracy(i)
+    csv = str(i) + ';' + str(acc[0]) + ';' + str(timeTraining) + ';' + str(timeTesting) + '\n'
+    file = open('3.3result.csv', 'a')
+    file.write(csv)
+    file.close
+

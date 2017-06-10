@@ -38,6 +38,7 @@
 \usepackage{graphicx}
 \usepackage{pgfplots}
 \usepackage{csvsimple}
+\usepackage{wrapfig}
 %Erm?glicht Hyperlinks zwischen Textstellen und zu externen Dokumenten
 %% breaklinks=true/false: Gibt an, ob Links umgebrochen werden d?rfen.
 %% linktocpage=true/false: im Inhaltsverzeichnis sind nur die Seitenzahlen
@@ -65,6 +66,16 @@
   pdfsubject=Webmining,
   %pdfkeywords=xy
 }
+
+\tikzset{
+  every overlay node/.style={
+    draw,
+    anchor=north west,
+  },
+}
+\def\tikzoverlay{%
+   \tikz[baseline,overlay]\node[every overlay node]
+}%
 
 
 \lstset{ %
@@ -227,8 +238,11 @@ Summe	& 	1035	& 	1067	& 2102\\
 			\end{itemize}
 			%\item Quelle der Stopwords: \texttt{http://www.nltk.org/nltk\_data/packages/corpora/stopwords.zip}
 			\item Anschließendes Stemming der Wörter mit dem Porter Stemmer\\\texttt{https://tartarus.org/martin/PorterStemmer/}
+			\begin{itemize}
+				\item Von den 231 Wörtern verbleiben 160 verschiedene Wortstämme
+			\end{itemize}
 		\end{itemize}
-		\textbf{Beispiele:}\\
+		\textbf{Stemming-Beispiele:}\\
 			\texttt{welcome} $\rightarrow$ \texttt{welcom}\\
 			\texttt{contains} $\rightarrow$ \texttt{contain}\\
 			\texttt{information} $\rightarrow$ \texttt{inform}\\
@@ -296,33 +310,97 @@ Summe	& 	1035	& 	1067	& 2102\\
 
 	\end{frame}
 	
+	\newcommand{\plotOf}[3]{
+ \resizebox {0.9\columnwidth} {!} {
+	  \begin{tikzpicture}
+	  
+	    \begin{axis}[
+	    axis lines=middle,
+	    axis line style={->},
+	    x label style={at={(axis description cs:0.5,-0.1)},anchor=north},
+	    y label style={at={(axis description cs:-0.1,.5)},rotate=90,anchor=south},
+	    xlabel={#1},
+	    ylabel={#2},
+	    %ymin=-1,
+	    %ymax=110
+	    ]
+	    \addplot table [x=features, y=#3,col sep=semicolon]
+	    %,col sep=semicolon
+	    {../Aufg03/3.3result.csv};
+	  \end{axis}
+	  \end{tikzpicture}
+	  }
+}
+	
 	\begin{frame}
 		\frametitle{Aufgabe 3:\\ Analyse der erhobenen Daten\\ Teil 1: Statistische Analyse -- Baseline}
 		\begin{itemize}
-			\item Trainingsdaten: 151, Testdaten: 152
 			\item Baseline: Tippt immer auf die am häufigsten vorkommende Kategorie
-			\item In den Gesamtdaten sind 
-			\item Konfusionsmatrix: 231 von 303 Datensätzen non-course (-1) \\
+			\item Insgesamt sind 231 von 303 Datensätzen non-course (-1) \\
 			      Ermittelt mit \texttt{cat data.txt | grep '-1' | wc -l}
+			\item In den Trainingsdaten sind 231 - 111 = 120 von 152 Datensätzen non-course
+			\item Die Baseline Konfusionsmatrix sieht also so aus: \\
 			\begin{tabular}{|l|l|c|c||c|}
 		\hline
 			& & \multicolumn{2}{c|}{Vorhersage} & \\
 			\hline
 			& & course & non-course & Summe \\
 			\hline
-		\multirow{2}{*}{Kategorie} & course (+1) & 20 & 21 & 41\\
+		\multirow{2}{*}{Kategorie} & course (+1) & 0 & 32 & 32 \\
 		\cline{2-5}
-		& non-course (-1) & 8 & 103 & 111\\
+		& non-course (-1) & 0  & 120 & 120\\
 		\hline
-		& Summe & 28 & 124 & 152 \\
+		& Summe & 0 & 152 & 152 \\
 		\hline
 		\end{tabular}
-			\item Accuracy: $A = \frac{TP + TN}{N} = \frac{20+103}{152} \approx 80,92\%$
+			\item Accuracy: $A = \frac{TP + TN}{N} = \frac{120}{152} \approx 78,95\%$
+			\item Das trainierte Modell ist mit 80,92\% nur wenig besser, was am hohen Anteil von non-course Datensätzen liegt
 		\end{itemize}
-
-		
-
 	\end{frame}
+	
+	\begin{frame}
+	  \frametitle{Aufgabe 3.3:\\ Variation der Feature-Anzahl\\ Genauigkeit}
+	    
+	  %\begin{minipage}[\textheight]{\textwidth}
+	    \begin{columns}[T]%T
+	    \begin{column}{0.3\textwidth}
+	    \begin{itemize}[<+->]
+	    \item Accuracy fällt zu\-nächst stark ab, nähert sich dann $\approx72\%$ an
+	    \item Sinnvoll ist also entweder die Betrachtung von weniger als $\approx50$ Features (danach fällt Genauigkeit ab)
+	    \item ...oder $\approx600$, weil danach die Genauigkeit nicht wesentlich steigt
+	    \end{itemize}
+	    \end{column}
+	    \begin{column}{0.7\textwidth}
+	    \plotOf{Anzahl Features}{Accuracy in \%}{accuracy} 
+	    \end{column}
+	    \end{columns}
+	    %\end{minipage}
+	   
+  
+	\end{frame}
+	
+	\begin{frame}
+	  \frametitle{Aufgabe 3.3:\\ Variation der Feature-Anzahl\\ Trainingsdauer}
+	  \begin{columns}[T]%T
+	    \begin{column}{0.3\textwidth}
+	    \begin{itemize}[<+->]
+	    \item Trainingsdauer steigt von Ausreißern abgesehen etwa linear an
+	    \end{itemize}
+	    \end{column}
+	    \begin{column}{0.7\textwidth}
+	    \plotOf{Anzahl Features}{Trainingsdauer in Sekunden}{timeTraining} 
+	    \end{column}
+	    \end{columns}
+	  
+	\end{frame}
+	
+	\begin{frame}
+	  \frametitle{Aufgabe 3.3:\\ Variation der Feature-Anzahl\\ Testdauer}
+	  
+	  \plotOf{Anzahl Features}{Testdauer in Sekunden}{timeTesting}
+	\end{frame}
+	
+
 
 
 

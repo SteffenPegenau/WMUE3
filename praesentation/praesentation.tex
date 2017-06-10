@@ -38,6 +38,7 @@
 \usepackage{graphicx}
 \usepackage{pgfplots}
 \usepackage{csvsimple}
+\usepackage{wrapfig}
 %Erm?glicht Hyperlinks zwischen Textstellen und zu externen Dokumenten
 %% breaklinks=true/false: Gibt an, ob Links umgebrochen werden d?rfen.
 %% linktocpage=true/false: im Inhaltsverzeichnis sind nur die Seitenzahlen
@@ -65,6 +66,16 @@
   pdfsubject=Webmining,
   %pdfkeywords=xy
 }
+
+\tikzset{
+  every overlay node/.style={
+    draw,
+    anchor=north west,
+  },
+}
+\def\tikzoverlay{%
+   \tikz[baseline,overlay]\node[every overlay node]
+}%
 
 
 \lstset{ %
@@ -299,6 +310,28 @@ Summe	& 	1035	& 	1067	& 2102\\
 
 	\end{frame}
 	
+	\newcommand{\plotOf}[3]{
+ \resizebox {0.9\columnwidth} {!} {
+	  \begin{tikzpicture}
+	  
+	    \begin{axis}[
+	    axis lines=middle,
+	    axis line style={->},
+	    x label style={at={(axis description cs:0.5,-0.1)},anchor=north},
+	    y label style={at={(axis description cs:-0.1,.5)},rotate=90,anchor=south},
+	    xlabel={#1},
+	    ylabel={#2},
+	    %ymin=-1,
+	    %ymax=110
+	    ]
+	    \addplot table [x=features, y=#3,col sep=semicolon]
+	    %,col sep=semicolon
+	    {../Aufg03/3.3result.csv};
+	  \end{axis}
+	  \end{tikzpicture}
+	  }
+}
+	
 	\begin{frame}
 		\frametitle{Aufgabe 3:\\ Analyse der erhobenen Daten\\ Teil 1: Statistische Analyse -- Baseline}
 		\begin{itemize}
@@ -323,10 +356,64 @@ Summe	& 	1035	& 	1067	& 2102\\
 			\item Accuracy: $A = \frac{TP + TN}{N} = \frac{120}{152} \approx 78,95\%$
 			\item Das trainierte Modell ist mit 80,92\% nur wenig besser, was am hohen Anteil von non-course Datensätzen liegt
 		\end{itemize}
-
-		
-
 	\end{frame}
+	
+	\begin{frame}
+	  \frametitle{Aufgabe 3.3:\\ Variation der Feature-Anzahl\\ Genauigkeit}
+	    
+	  %\begin{minipage}[\textheight]{\textwidth}
+	    \begin{columns}[T]%T
+	    \begin{column}{0.3\textwidth}
+	    \begin{itemize}[] %<+->
+	    \item Accuracy fällt zu\-nächst stark ab, nähert sich dann $\approx72\%$ an
+	    \item Sinnvoll ist also entweder die Betrachtung von weniger als $\approx50$ Features (danach fällt Genauigkeit ab)
+	    \item ...oder $\approx600$, weil danach die Genauigkeit nicht wesentlich steigt
+	    \end{itemize}
+	    \end{column}
+	    \begin{column}{0.7\textwidth}
+	    \plotOf{Anzahl Features}{Accuracy in \%}{accuracy} 
+	    \end{column}
+	    \end{columns}
+	    %\end{minipage}
+	   
+  
+	\end{frame}
+	
+	\begin{frame}
+	  \frametitle{Aufgabe 3.3:\\ Variation der Feature-Anzahl\\ Trainingsdauer}
+	  \begin{columns}[T]%T
+	    \begin{column}{0.4\textwidth}
+	    \begin{itemize}[] %<+->
+	    \item Trainingsdauer steigt von Ausreißern abgesehen etwa linear an
+	    \item Selbst mit vielen Features beträgt die Dauer jedoch weniger als eine Sekunde
+	    \item $\rightarrow$ Trainingsdauer eher nicht maßgeblich für Wahl der Anzahl
+	    \end{itemize}
+	    \end{column}
+	    \begin{column}{0.6\textwidth}
+	    \plotOf{Anzahl Features}{Trainingsdauer in Sekunden}{timeTraining} 
+	    \end{column}
+	    \end{columns}
+	  
+	\end{frame}
+	
+	\begin{frame}
+	  \frametitle{Aufgabe 3.3:\\ Variation der Feature-Anzahl\\ Testdauer}
+	  \begin{columns}[T]%T
+	    \begin{column}{0.4\textwidth}
+	    \begin{itemize}[] %<+->
+	    \item Die Testdauer ist nicht linear
+	    \item Abnehmende Grenzrate
+	    \item Auch bei vielen Features weit unter einer Sekunde
+	    \end{itemize}
+	    \end{column}
+	    \begin{column}{0.6\textwidth}
+	    \plotOf{Anzahl Features}{Testdauer in Sekunden}{timeTesting}
+	    \end{column}
+	    \end{columns}
+	  
+	\end{frame}
+	
+
 
 
 

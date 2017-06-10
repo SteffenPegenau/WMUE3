@@ -1,5 +1,7 @@
 ###################################################################
 # FUNCTIONS
+import regex
+import math
 
 def removeDots(wordlist):
     """Receives a list of words. Removes dots, colons, parentheses, URLs and email addresses
@@ -7,10 +9,10 @@ def removeDots(wordlist):
 
     #endlist = wordlist.copy()
     i = 0
-    email = re.compile('.+@.+\..+')     #pattern of an email address
-    dotsAndColons = re.compile('.*[,!?.;:\])}"\']\B') #any word with dots, colons,", ' or parenthesises at the end
-    parenthesis = re.compile('[\[({"\'].*')    #any words with parenthesises or " ' in front
-    urls = re.compile('http[s]?://.+')        #any http:// and https:// URLs
+    email = regex.compile('.+@.+\..+')     #pattern of an email address
+    dotsAndColons = regex.compile('.*[,!?.;:\])}"\']\B') #any word with dots, colons,", ' or parenthesises at the end
+    parenthesis = regex.compile('[\[({"\'].*')    #any words with parenthesises or " ' in front
+    urls = regex.compile('http[s]?://.+')        #any http:// and https:// URLs
 
     endreached = False
 
@@ -214,7 +216,7 @@ def getMostNDocFreqWords(wordDict, n):
 # MAIN BODY
 def doIt(n):
     from bs4 import BeautifulSoup
-    import re
+    import regex
     import glob
     import math
     import shlex
@@ -226,7 +228,7 @@ def doIt(n):
     #filelist = glob.glob('testdata2/*.html')
 
     #regular training data set from Aufg01
-    filelist = glob.glob('trainingData/train--fulltext*.html')
+    filelist = glob.glob('trainingData/*--fulltext*.html')
 
     #counts, in how many documents a word appears with (word: absolute frequency) pairs
     totalWordAppearenceDict = {}
@@ -244,8 +246,8 @@ def doIt(n):
     index = -1
 
     for file in filelist:
-        file = file.replace('^', '\^')
-        file = file.replace('~', '\~')
+        #file = file.replace('^', '\^')
+        #file = file.replace('~', '\~')
         try:
 
             #catch index of sample file for presentation
@@ -299,8 +301,9 @@ def doIt(n):
             #list that contains the normalized dictionary for every file of the testdata
             dictList.append(wordDict)
 
-        except:
+        except Exception as e:
             print('Failed to open file ' + file)
+            print(e)
             #filelist.remove(file)
 
 
