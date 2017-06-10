@@ -174,21 +174,156 @@
 			\item Beispiel: \\
 			\texttt{test----fulltext----course----BEG----cs.wisc.edu\^{}\~{}dyer\^{}cs766.html}
 			\item Das Ergebnis der Verteilung scheint zufällig und damit brauchbar: \\
-			\begin{tabular}{|l|l|l||l|}
+			\begin{tabular}{|l|r|r||r|}
 				\hline
 & Training	& Test	& 	Summe \\
 \hline
 course	& 	233	& 	227	& 	460	\\
 non-course	& 	802	& 	840	& 	1642	\\
 \hline
+\hline
 Summe	& 	1035	& 	1067	& 2102\\
 				\hline
 			\end{tabular}
+			\item Mit dem im weiteren Verlauf verwendeten libsvm lassen sich die Daten zwar einfacher und eleganter in Trainings- und Testdaten einteilen, aber da es nun mal in der Aufgabenstellung stand ...
 
 
 		\end{itemize}
 
 	\end{frame}
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% Aufgabe 02
+	
+	\begin{frame}
+		\frametitle{Aufgabe 2: Aufbereitung der Daten\\Dokument zu Wort-Liste\\Beispieldokument}
+		\begin{center}
+			\includegraphics[height=180pt]{img/sample2}
+		\end{center}
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Aufgabe 2: Aufbereitung der Daten\\Dokument zu Wort-Liste\\Reduzierung der Wörter}
+		\begin{itemize}
+			\item Text aus dem html-Body wird in Kleinbuchstaben transformiert und an Leerstellen in einzelne Wörter unterteilt
+			\item Emailadressen und URLs, die mit \texttt{http[s]://} beginnen, werden entfernt
+			\item Wörter, die auf Satzzeichen, Klammern, Anführungszeichen etc. enden, werden um dieses reduziert
+			\item Ebenso Wörter, die mit Klammern, Anführungszeichen o.ä. beginnen
+		\end{itemize}
+		\textbf{Beispiel:}\\
+		\texttt{(autumn} wird zu \texttt{autumn}\\
+		\texttt{page!} wird zu \texttt{page}\\
+		\texttt{public,} wird zu \texttt{public}\\
+		\texttt{1995):} wird zu \texttt{1995}
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Aufgabe 2: Aufbereitung der Daten\\Stopwords und Stemming}
+		\begin{itemize}
+			\item Die verbliebenen Wörter werden um Stopwords\footnotetext{baba} aus einer Liste reduziert
+			\begin{itemize}
+				\item Vorher: 381 Wörter
+				\item Nachher: 231 Wörter
+			\end{itemize}
+			%\item Quelle der Stopwords: \texttt{http://www.nltk.org/nltk\_data/packages/corpora/stopwords.zip}
+			\item Anschließendes Stemming der Wörter mit dem Porter Stemmer\\\texttt{https://tartarus.org/martin/PorterStemmer/}
+		\end{itemize}
+		\textbf{Beispiele:}\\
+			\texttt{welcome} $\rightarrow$ \texttt{welcom}\\
+			\texttt{contains} $\rightarrow$ \texttt{contain}\\
+			\texttt{information} $\rightarrow$ \texttt{inform}\\
+			\texttt{added} $\rightarrow$ \texttt{ad}\\
+			
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Aufgabe 2: Aufbereitung der Daten\\TF-IDF-Vektor}
+		\begin{itemize}
+			\item normalisierte TF des Terms t in Dokument d: $\operatorname{tf}(t,d) = \frac{f(t, d)}{\max\{f(w, d):w \in d\}}$
+			\item inv. Document Frequency: $\operatorname{idf}_i = \log \frac{N}{n_i}$
+			\item Gewichtung der einzelnen Wörter: $w_{i,j} = \operatorname{tf}_{i,j} \cdot \operatorname{idf}_i$
+		\end{itemize}
+		
+		\textbf{Werte der Beispieldatei im Trainingsset:}\\
+		\texttt{TF-IDF-Vektor:}\\
+		\texttt{\{'cse': 0.7920241942426215, '590d': 1.2435691877385933, 'home': 0.04761829630391385, 'page': 0.029480629516760913, 'autumn': 0.502504280189381, '1995': 0.1530192780213716, ...\}}
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Aufgabe 2: Aufbereitung der Daten\\Sparse-Darstellung}
+		\begin{itemize}
+			\item Die 10 häufigsten Wörter nach Dokumenthäufigkeit:\\
+			\texttt{$\lbrack$('page', 234), ('comput', 234), ('home', 198), ('scienc', 197), ('univers', 189), ('depart', 149), ('1996', 133), ('inform', 128), ('research', 128), ('system', 127)$\rbrack$}
+			
+			\item Sparse-Format:\\
+			\texttt{+1 1:0.029480629516760913 2:0.014740314758380457 3:0.04761829630391385 5:0.026334571412992794 8:0.1424731521859943}
+			\item Bedeutung:
+			\begin{itemize}
+ 				\item \texttt{page} hat eine TF-IDF-Gewichtung von \texttt{0.029480629516760913}
+ 				\item \texttt{comput} hat eine TF-IDF-Gewichtung von \texttt{0.014740314758380457}
+ 				\item \texttt{home} hat eine TF-IDF-Gewichtung von \texttt{0.04761829630391385}
+ 				\item \texttt{scienc} ist nicht im Dokument vorhanden
+ 				\item \texttt{univers} hat eine TF-IDF-Gewichtung von \texttt{0.026334571412992794}
+ 				\item usw.
+			\end{itemize}
+		\end{itemize}
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Aufgabe 3:\\ Analyse der erhobenen Daten\\ Teil 1: Statistische Analyse -- Konfusionsmatrix}
+		\begin{itemize}
+			\item Trainingsdaten: 151, Testdaten: 152
+			\item Konfusionsmatrix: \\
+			\begin{tabular}{|l|l|c|c||c|}
+		\hline
+			& & \multicolumn{2}{c|}{Vorhersage} & \\
+			\hline
+			& & course & non-course & Summe \\
+			\hline
+		\multirow{2}{*}{Kategorie} & course (+1) & 20 & 21 & 41\\
+		\cline{2-5}
+		& non-course (-1) & 8 & 103 & 111\\
+		\hline
+		& Summe & 28 & 124 & 152 \\
+		\hline
+		\end{tabular}
+			\item Accuracy: $A = \frac{TP + TN}{N} = \frac{20+103}{152} \approx 80,92\%$
+			\item Trainingszeit: 0,027884 Sekunden (-t 0 -c 50, 284 Iterationen)\\
+				Testzeit: 0,02458 Sekunden
+		\end{itemize}
+
+		
+
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Aufgabe 3:\\ Analyse der erhobenen Daten\\ Teil 1: Statistische Analyse -- Baseline}
+		\begin{itemize}
+			\item Trainingsdaten: 151, Testdaten: 152
+			\item Baseline: Tippt immer auf die am häufigsten vorkommende Kategorie
+			\item In den Gesamtdaten sind 
+			\item Konfusionsmatrix: 231 von 303 Datensätzen non-course (-1) \\
+			      Ermittelt mit \texttt{cat data.txt | grep '-1' | wc -l}
+			\begin{tabular}{|l|l|c|c||c|}
+		\hline
+			& & \multicolumn{2}{c|}{Vorhersage} & \\
+			\hline
+			& & course & non-course & Summe \\
+			\hline
+		\multirow{2}{*}{Kategorie} & course (+1) & 20 & 21 & 41\\
+		\cline{2-5}
+		& non-course (-1) & 8 & 103 & 111\\
+		\hline
+		& Summe & 28 & 124 & 152 \\
+		\hline
+		\end{tabular}
+			\item Accuracy: $A = \frac{TP + TN}{N} = \frac{20+103}{152} \approx 80,92\%$
+		\end{itemize}
+
+		
+
+	\end{frame}
+
 
 
 % etc

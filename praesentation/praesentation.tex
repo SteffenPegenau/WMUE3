@@ -185,6 +185,7 @@ non-course	& 	802	& 	840	& 	1642	\\
 Summe	& 	1035	& 	1067	& 2102\\
 				\hline
 			\end{tabular}
+			\item Mit dem im weiteren Verlauf verwendeten libsvm lassen sich die Daten zwar einfacher und eleganter in Trainings- und Testdaten einteilen, aber da es nun mal in der Aufgabenstellung stand ...
 
 
 		\end{itemize}
@@ -267,6 +268,63 @@ Summe	& 	1035	& 	1067	& 2102\\
 			\end{itemize}
 		\end{itemize}
 	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Aufgabe 3:\\ Analyse der erhobenen Daten\\ Teil 1: Statistische Analyse -- Konfusionsmatrix}
+		\begin{itemize}
+			\item Trainingsdaten: 151, Testdaten: 152
+			\item Konfusionsmatrix: \\
+			\begin{tabular}{|l|l|c|c||c|}
+		\hline
+			& & \multicolumn{2}{c|}{Vorhersage} & \\
+			\hline
+			& & course & non-course & Summe \\
+			\hline
+		\multirow{2}{*}{Kategorie} & course (+1) & 20 & 21 & 41\\
+		\cline{2-5}
+		& non-course (-1) & 8 & 103 & 111\\
+		\hline
+		& Summe & 28 & 124 & 152 \\
+		\hline
+		\end{tabular}
+			\item Accuracy: $A = \frac{TP + TN}{N} = \frac{20+103}{152} \approx 80,92\%$
+			\item Trainingszeit: 0,027884 Sekunden (-t 0 -c 50, 284 Iterationen)\\
+				Testzeit: 0,02458 Sekunden
+		\end{itemize}
+
+		
+
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Aufgabe 3:\\ Analyse der erhobenen Daten\\ Teil 1: Statistische Analyse -- Baseline}
+		\begin{itemize}
+			\item Baseline: Tippt immer auf die am häufigsten vorkommende Kategorie
+			\item Insgesamt sind 231 von 303 Datensätzen non-course (-1) \\
+			      Ermittelt mit \texttt{cat data.txt | grep '-1' | wc -l}
+			\item In den Trainingsdaten sind 231 - 111 = 120 von 152 Datensätzen non-course
+			\item Die Baseline Konfusionsmatrix sieht also so aus: \\
+			\begin{tabular}{|l|l|c|c||c|}
+		\hline
+			& & \multicolumn{2}{c|}{Vorhersage} & \\
+			\hline
+			& & course & non-course & Summe \\
+			\hline
+		\multirow{2}{*}{Kategorie} & course (+1) & 0 & 32 & 32 \\
+		\cline{2-5}
+		& non-course (-1) & 0  & 120 & 120\\
+		\hline
+		& Summe & 0 & 152 & 152 \\
+		\hline
+		\end{tabular}
+			\item Accuracy: $A = \frac{TP + TN}{N} = \frac{120}{152} \approx 78,95\%$
+			\item Das trainierte Modell ist mit 80,92\% nur wenig besser, was am hohen Anteil von non-course Datensätzen liegt
+		\end{itemize}
+
+		
+
+	\end{frame}
+
 
 
 % etc
