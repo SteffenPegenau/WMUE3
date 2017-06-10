@@ -218,9 +218,6 @@ import re
 import glob
 import math
 
-#import file testdata.html for simplicity
-#switch to data collection lateron
-
 #sample file for presentation:
 #filelist = glob.glob('testdata2/*.html')
 
