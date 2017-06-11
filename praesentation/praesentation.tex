@@ -321,6 +321,8 @@ Summe	& 	1035	& 	1067	& 2102\\
 	    y label style={at={(axis description cs:-0.1,.5)},rotate=90,anchor=south},
 	    xlabel={#1},
 	    ylabel={#2},
+	    xmin=0,
+	    xmax=10000,
 	    %ymin=-1,
 	    %ymax=110
 	    ]
@@ -359,7 +361,7 @@ Summe	& 	1035	& 	1067	& 2102\\
 	\end{frame}
 	
 	\begin{frame}
-	  \frametitle{Aufgabe 3.3:\\ Variation der Feature-Anzahl\\ Genauigkeit}
+	  \frametitle{Aufgabe 3.3: Variation der Feature-Anzahl\\ Siehe Datei 3.3result.csv\\ Genauigkeit}
 	    
 	  %\begin{minipage}[\textheight]{\textwidth}
 	    \begin{columns}[T]%T
@@ -367,7 +369,7 @@ Summe	& 	1035	& 	1067	& 2102\\
 	    \begin{itemize}[] %<+->
 	    \item Accuracy fällt zu\-nächst stark ab, nähert sich dann $\approx72\%$ an
 	    \item Sinnvoll ist also entweder die Betrachtung von weniger als $\approx50$ Features (danach fällt Genauigkeit ab)
-	    \item ...oder $\approx600$, weil danach die Genauigkeit nicht wesentlich steigt
+	    \item ...oder $\approx2500$, weil danach die Genauigkeit nicht wesentlich steigt
 	    \end{itemize}
 	    \end{column}
 	    \begin{column}{0.7\textwidth}
@@ -384,7 +386,7 @@ Summe	& 	1035	& 	1067	& 2102\\
 	  \begin{columns}[T]%T
 	    \begin{column}{0.4\textwidth}
 	    \begin{itemize}[] %<+->
-	    \item Trainingsdauer steigt von Ausreißern abgesehen etwa linear an
+	    \item Trainingsdauer steigt von Ausreißern abgesehen weniger als linear an
 	    \item Selbst mit vielen Features beträgt die Dauer jedoch weniger als eine Sekunde
 	    \item $\rightarrow$ Trainingsdauer eher nicht maßgeblich für Wahl der Anzahl
 	    \end{itemize}
