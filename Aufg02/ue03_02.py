@@ -246,6 +246,7 @@ for file in filelist:
         #catch index of sample file for presentation
         if file == '../Aufg01/trainingData\\train--fulltext--course--BEG--cs.washington.edu^education^courses^590D^autumn95.html':
             index = filelist.index(file)
+            print('FOUND IT: ' + str(index))
 
     
         data = open(file, 'r', encoding='utf-8')
@@ -322,8 +323,9 @@ for dictionary in dictList:
 
     tfIdfList.append(vector)
 
-#print tfIdfVector of presentation sample file
-#print(tfIdfList[index])
+#print tfIdfVector of presentation sample file (index-1 because
+#one file in filelist could not be opened)
+#print(tfIdfList[index-1])
 
 
 ##print('++++++++++++++++++++++++++++++++++++++++++++++++++++++')
@@ -367,9 +369,10 @@ while endreached != True:
             line = line + str(j) + ':' + str(tfIdf.get(word[0])) + ' '
         j += 1
 
-    #output of sample file for presentation
-##    if i == index:
-##        print(line)
+    #output of sample file for presentation (index-1 because
+    #one file in filelist could not be opened)
+    if i == index-1:
+        print(line)
         
     file.write(line + '\n')
 
