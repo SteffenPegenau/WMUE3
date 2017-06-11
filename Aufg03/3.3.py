@@ -54,11 +54,12 @@ file = open('3.3result.csv', 'w')
 file.write(csv)
 file.close
 
-for i in range(1,10000):
-    print('######### Iteration ' + str(i))
-    acc, timeTraining, timeTesting = getAccuracy(i)
-    csv = str(i) + ';' + str(acc[0]) + ';' + str(timeTraining) + ';' + str(timeTesting) + '\n'
-    file = open('3.3result.csv', 'a')
-    file.write(csv)
-    file.close
+for i in range(5,10000):
+    if i % 10 == 0 or i == 5:
+        print('######### Iteration ' + str(i))
+        acc, timeTraining, timeTesting = getAccuracy(i)
+        csv = str(i) + ';' + str(acc[0]) + ';' + str(timeTraining) + ';' + str(timeTesting) + '\n'
+        file = open('3.3result.csv', 'a')
+        file.write(csv)
+        file.close
 

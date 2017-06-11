@@ -9,7 +9,7 @@ import time
 
 # Settings
 filename = '../Aufg02/data.txt'
-params = '-t 0 -c 50 -b 1'
+params = '-t 0 -c 50'
 
 
 # Shuffle
