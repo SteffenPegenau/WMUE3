@@ -286,7 +286,7 @@ Summe	& 	1035	& 	1067	& 2102\\
 	\begin{frame}
 		\frametitle{Aufgabe 3:\\ Analyse der erhobenen Daten\\ Teil 1: Statistische Analyse -- Konfusionsmatrix}
 		\begin{itemize}
-			\item Trainingsdaten: 151, Testdaten: 152
+			\item Trainingsdaten: 279, Testdaten: 280, Gesamt: 559
 			\item Konfusionsmatrix: \\
 			\begin{tabular}{|l|l|c|c||c|}
 		\hline
@@ -294,16 +294,16 @@ Summe	& 	1035	& 	1067	& 2102\\
 			\hline
 			& & course & non-course & Summe \\
 			\hline
-		\multirow{2}{*}{Kategorie} & course (+1) & 20 & 21 & 41\\
+		\multirow{2}{*}{Kategorie} & course (+1) & 12 & 49 & 61\\
 		\cline{2-5}
-		& non-course (-1) & 8 & 103 & 111\\
+		& non-course (-1) & 42 & 177 & 219\\
 		\hline
-		& Summe & 28 & 124 & 152 \\
+		& Summe & 54 & 226 & 280 \\
 		\hline
 		\end{tabular}
-			\item Accuracy: $A = \frac{TP + TN}{N} = \frac{20+103}{152} \approx 80,92\%$
-			\item Trainingszeit: 0,027884 Sekunden (-t 0 -c 50, 284 Iterationen)\\
-				Testzeit: 0,02458 Sekunden
+			\item Accuracy: $A = \frac{TP + TN}{N} = \frac{12+177}{280} \approx 67,5\%$
+			\item Trainingszeit: 0,0267 Sekunden (-t 0 -c 50, 851 Iterationen)\\
+				Testzeit: 0,0236 Sekunden
 		\end{itemize}
 
 		
@@ -336,9 +336,9 @@ Summe	& 	1035	& 	1067	& 2102\\
 		\frametitle{Aufgabe 3:\\ Analyse der erhobenen Daten\\ Teil 1: Statistische Analyse -- Baseline}
 		\begin{itemize}
 			\item Baseline: Tippt immer auf die am häufigsten vorkommende Kategorie
-			\item Insgesamt sind 231 von 303 Datensätzen non-course (-1) \\
+			\item Insgesamt sind 428 von 559 Datensätzen non-course (-1) \\
 			      Ermittelt mit \texttt{cat data.txt | grep '-1' | wc -l}
-			\item In den Trainingsdaten sind 231 - 111 = 120 von 152 Datensätzen non-course
+			\item In den Trainingsdaten sind 428 - 219 = 209 von 279 Datensätzen non-course
 			\item Die Baseline Konfusionsmatrix sieht also so aus: \\
 			\begin{tabular}{|l|l|c|c||c|}
 		\hline
@@ -346,15 +346,15 @@ Summe	& 	1035	& 	1067	& 2102\\
 			\hline
 			& & course & non-course & Summe \\
 			\hline
-		\multirow{2}{*}{Kategorie} & course (+1) & 0 & 32 & 32 \\
+		\multirow{2}{*}{Kategorie} & course (+1) & 0 & 61 & 61 \\
 		\cline{2-5}
-		& non-course (-1) & 0  & 120 & 120\\
+		& non-course (-1) & 0  & 219 & 219\\
 		\hline
-		& Summe & 0 & 152 & 152 \\
+		& Summe & 0 & 280 & 280 \\
 		\hline
 		\end{tabular}
-			\item Accuracy: $A = \frac{TP + TN}{N} = \frac{120}{152} \approx 78,95\%$
-			\item Das trainierte Modell ist mit 80,92\% nur wenig besser, was am hohen Anteil von non-course Datensätzen liegt
+			\item Accuracy: $A = \frac{TP + TN}{N} = \frac{219}{280} \approx 78,21\%$
+			\item Dieses simple Modell ist wesentlich besser als das trainierte Modell
 		\end{itemize}
 	\end{frame}
 	
