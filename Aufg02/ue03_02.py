@@ -222,7 +222,7 @@ import math
 #filelist = glob.glob('testdata2/*.html')
 
 #regular training data set from Aufg01
-filelist = glob.glob('../Aufg01/trainingData/train--fulltext*.html')
+filelist = glob.glob('../Aufg01/trainingData/*--fulltext*.html')
 
 #counts, in how many documents a word appears with (word: absolute frequency) pairs
 totalWordAppearenceDict = {}
