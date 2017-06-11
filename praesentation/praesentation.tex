@@ -260,24 +260,24 @@ Summe	& 	1035	& 	1067	& 2102\\
 		
 		\textbf{Werte der Beispieldatei im Trainingsset:}\\
 		\texttt{TF-IDF-Vektor:}\\
-		\texttt{\{'cse': 0.7920241942426215, '590d': 1.2435691877385933, 'home': 0.04761829630391385, 'page': 0.029480629516760913, 'autumn': 0.502504280189381, '1995': 0.1530192780213716, ...\}}
+		\texttt{\{'cse': 0.8756395519916711, '590d': 1.2251245541596805, 'home': 0.04606318445607049, 'page': 0.0302128072395796, 'autumn': 0.5373047781638449, '1995': 0.15285000439552646, ...\}}
 	\end{frame}
 	
 	\begin{frame}
 		\frametitle{Aufgabe 2: Aufbereitung der Daten\\Sparse-Darstellung}
 		\begin{itemize}
 			\item Die 10 häufigsten Wörter nach Dokumenthäufigkeit:\\
-			\texttt{$\lbrack$('page', 234), ('comput', 234), ('home', 198), ('scienc', 197), ('univers', 189), ('depart', 149), ('1996', 133), ('inform', 128), ('research', 128), ('system', 127)$\rbrack$}
+			\texttt{$\lbrack$('comput', 429), ('page', 427), ('home', 369), ('scienc', 361), ('univers', 334), ('depart', 271), ('system', 260), ('1996', 248), ('inform', 240), ('research', 238)$\rbrack$}
 			
 			\item Sparse-Format:\\
-			\texttt{+1 1:0.029480629516760913 2:0.014740314758380457 3:0.04761829630391385 5:0.026334571412992794 8:0.1424731521859943}
+			\texttt{+1 1:0.01485272647482725 2:0.0302128072395796 3:0.04606318445607049 5:0.028441579646472228 9:0.1391504483519011}
 			\item Bedeutung:
 			\begin{itemize}
- 				\item \texttt{page} hat eine TF-IDF-Gewichtung von \texttt{0.029480629516760913}
- 				\item \texttt{comput} hat eine TF-IDF-Gewichtung von \texttt{0.014740314758380457}
- 				\item \texttt{home} hat eine TF-IDF-Gewichtung von \texttt{0.04761829630391385}
+ 				\item \texttt{comput} hat eine TF-IDF-Gewichtung von \texttt{0.01485272647482725}
+ 				\item \texttt{page} hat eine TF-IDF-Gewichtung von \texttt{0.0302128072395796}
+ 				\item \texttt{home} hat eine TF-IDF-Gewichtung von \texttt{0.04606318445607049}
  				\item \texttt{scienc} ist nicht im Dokument vorhanden
- 				\item \texttt{univers} hat eine TF-IDF-Gewichtung von \texttt{0.026334571412992794}
+ 				\item \texttt{univers} hat eine TF-IDF-Gewichtung von \texttt{0.028441579646472228}
  				\item usw.
 			\end{itemize}
 		\end{itemize}
